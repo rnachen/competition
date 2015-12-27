@@ -1,0 +1,3 @@
+---- bad config line Matches (2 in 1 files) ----
+Comm_key_value_config.cpp (e:\¾ºÈü\competition\comm):            // bad config line
+Comm_key_value_config.cpp (e:\¾ºÈü\competition\comm):            printf("bad config line in file %s. line=%s\n",

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="GBK" standalone="yes" ?>
+
+<metalib name="svr_proto" version="1">
+
+    <macrosgroup name="SvrCMD" desc="协议号，其中SC表示下行，CS表示上行，无表示上下行通用">
+        <macro name="SVR_CMD_CS_PLAYER_LOGIN"  value="10001" desc=""/>
+        <macro name="SVR_CMD_SC_PLAYER_SIGHT" value="10002" desc=""/>
+        <macro name="SVR_CMD_CS_PLAYER_GET_AXIS"  value="10003" desc=""/>
+    </macrosgroup>
+	
+	<macro name="MAX_SIGHT_COUNT" value="1000000" desc="一个玩家视野内玩家数的最大值"/>
+	
+	<!-- 坐标数据 -->
+    <struct name="Axis" version="1">
+        <entry name="x_axis_" type="uint32" desc="横坐标"/>
+		<entry name="y_axis_" type="uint32" desc="纵坐标"/>
+    </struct>
+	
+	<!-- 视野数据 -->
+    <struct name="Sight" version="1">
+        <entry name="count_" type="uint32" desc="玩家视野内的玩家数"/>
+		<entry name="axis_" type="Axis" count="MAX_SIGHT_COUNT" refer="count_" desc="玩家视野坐标集合"/>
+    </struct>
+
+    <!-- 玩家登录 -->
+    <struct name="PlayerLogin" version="1">
+        <entry name="uin_" type="uint32" desc="玩家唯一标识"/>
+    </struct>
+     
+    <!-- 玩家视野数据 -->
+    <struct name="PlayerSight" version="1">
+	    <entry name="uin_" type="uint32" desc="玩家唯一标识"/>
+        <entry name="sight_" type="Sight" desc="玩家视野数据"/>
+		<entry name="time_" type="uint32" desc="时间戳"/>
+    </struct>
+	
+	<!-- 玩家主动获取当前坐标和视野 -->
+    <struct name="PlayerGetAxis" version="1">
+        <entry name="uin_" type="uint32" desc="玩家唯一标识"/>
+		<entry name="time_" type="uint32" desc="时间戳"/>
+    </struct>
+
+    <!-- 数据包的包头和包体 -->
+    <struct name="SvrPkgHead" version="1">
+        <entry name="pkg_len_" type="uint32"/>
+        <entry name="cmd_" type="uint32"/>
+    </struct>
+
+    <union name="SvrPkgBody" version="1">
+        <entry name="player_login_" type="PlayerLogin" id="SVR_CMD_CS_PLAYER_LOGIN" desc="玩家登录"/>
+        <entry name="player_sight_" type="PlayerSight" id="SVR_CMD_SC_PLAYER_SIGHT" desc="玩家视野数据"/>
+        <entry name="player_get_axis_" type="PlayerGetAxis" id="SVR_CMD_CS_PLAYER_GET_AXIS" desc="玩家获取当前坐标和视野数据"/>
+    </union>
+
+    <struct name="SvrPkg" version="1" sizeinfo="head_.pkg_len_">
+        <entry name="head_" type="SvrPkgHead" />
+        <entry name="body_" type="SvrPkgBody" select="head_.cmd_" />
+    </struct>
+</metalib>

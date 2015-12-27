@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\server\svr_accept_handler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\svr_app.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\svr_client_info.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\svr_config.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\svr_main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\server\svr_tcp_client_handler.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\server\svr_accept_handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\svr_app.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\svr_client_info.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\svr_config.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\server\svr_tcp_client_handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\proto\svr_proto.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrBuf.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrBufUtil.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrError.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrPal.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrThirdParty.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrTime.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\proto\TdrTypeUtil.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\proto\svr_proto.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\svr_proto_metalib.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrBuf.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrBufUtil.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrError.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrPal.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrTime.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\proto\TdrTypeUtil.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\proto\svr_proto.xml">
+      <Filter>src</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>
