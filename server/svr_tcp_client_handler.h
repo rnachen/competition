@@ -33,6 +33,12 @@ public:
     */
     virtual int handle_input();
 
+	/*!
+    @brief      读取事件触发调用函数，用于读取数据，accept成功，（connect失败）处理，
+    @return     int 返回0表示句柄处理正常，return -1后，反应器会主动handle_close，帮助结束句柄
+    */
+    virtual int handle_input_ex();
+
     /*!
     @brief      写入事件触发调用函数，用于写数据，connect成功，
     @return     int int 返回0表示句柄处理正常，return -1后，反应器会主动handle_close，帮助结束句柄

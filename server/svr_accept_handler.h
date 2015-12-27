@@ -34,6 +34,13 @@ public:
     */
     virtual int handle_input();
 
+	
+	/*!
+	@brief		读取事件触发调用函数，用于读取数据，accept成功，（connect失败）处理，
+	@return 	int 返回0表示句柄处理正常，return -1后，反应器会主动handle_close，帮助结束句柄
+	*/
+	virtual int handle_input_ex();
+
     /*!
     @brief      调用异常，return -1表示调用handle_close
     @return     int

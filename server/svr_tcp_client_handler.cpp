@@ -12,7 +12,8 @@
 #include <errno.h>
 #include <string>
 #include "comm_log.h"
-#include "comm_refactor.h"
+//#include "comm_refactor.h"
+#include "comm_epoll.h"
 #include "svr_app.h"
 #include "svr_config.h"
 
@@ -85,6 +86,47 @@ SvrTcpClientHandler::handle_input()
 }
 
 int
+SvrTcpClientHandler::handle_input_ex()
+{
+    int ret = socket_.recv();
+    if (ret == CommSocket::ERR_SOCKET_FAIL)
+    {
+        // 收包失败，网络连接可能已被断开, 返回-1连接会被回收
+        return -1;
+    }
+
+    unsigned char *pkg_addr = NULL;
+    unsigned int pkg_len = sizeof(recv_buffer_);
+    svr_proto::SvrPkg pkg;
+
+    while (socket_.get_pkg(&pkg_addr, &pkg_len) == 0)
+    {
+        // 收到一个完整的包, 先解包
+        ret = pkg.unpack((char *)pkg_addr, pkg_len);
+        if (ret != 0)
+        {
+            // 解包失败，返回-1，连接会关闭
+            info_log("unpack fail. pkg_len=%u", pkg_len);
+            return -1;
+        }
+
+        // 处理数据包
+        ret = handle_recv_pkg(pkg);
+        if (ret != 0)
+        {
+            info_log("handle recv pkg fail. ret=%d", ret);
+            return ret;
+        }
+
+        pkg_len = sizeof(recv_buffer_);
+    }
+
+    // 未收到完整包，等
+    return 0;
+}
+
+
+int
 SvrTcpClientHandler::handle_output()
 {
 	// 有数据需要发送
@@ -100,8 +142,9 @@ SvrTcpClientHandler::handle_output()
 	if (ret == CommSocket::ERR_SOCKET_CONTINUE)
 	{
 		// 需继续发送
-		CommRefactor::instance()->regist(this,
-			CommEventHandler::READ_MASK | CommEventHandler::WRITE_MASK | CommEventHandler::EXCEPT_MASK);
+		//CommRefactor::instance()->regist(this,
+		//	CommEventHandler::READ_MASK | CommEventHandler::WRITE_MASK | CommEventHandler::EXCEPT_MASK);
+		CommEpoll::instance()->regist(this, false);
 	}
 	else if (ret == CommSocket::ERR_SOCKET_FINISH)
 	{
@@ -205,15 +248,17 @@ SvrTcpClientHandler::send_pkg(const svr_proto::SvrPkg &send_pkg)
     if (ret == CommSocket::ERR_SOCKET_CONTINUE)
     {
         // 未发送完，需继续发送，增加写事件
-        CommRefactor::instance()->regist(this,
-            CommEventHandler::READ_MASK|CommEventHandler::WRITE_MASK|CommEventHandler::EXCEPT_MASK);
-        return ret;
+       // CommRefactor::instance()->regist(this,
+       //     CommEventHandler::READ_MASK|CommEventHandler::WRITE_MASK|CommEventHandler::EXCEPT_MASK);
+		  CommEpoll::instance()->regist(this, false);
+		return ret;
     }
     else if (ret == CommSocket::ERR_SOCKET_FINISH)
     {
         // 发送完了，关闭写事件
-        CommRefactor::instance()->regist(this,
-            CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+        //CommRefactor::instance()->regist(this,
+         //   CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+		CommEpoll::instance()->regist(this, false);
     }
     else
     {

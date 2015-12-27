@@ -7,6 +7,7 @@
 ///
 #include "svr_app.h"
 #include "comm_refactor.h"
+#include "comm_epoll.h"
 #include "comm_log.h"
 //#include <signal.h>
 
@@ -51,7 +52,7 @@ SvrApp::run(int argc, const char **argv)
     while (is_run_ && ret == 0)
     {
         static const unsigned int WAIT_TIME_MIL_SECOND = 10;
-        ret = CommRefactor::instance()->proc(WAIT_TIME_MIL_SECOND);
+        ret = CommEpoll::instance()->proc(WAIT_TIME_MIL_SECOND);
     }
 
     return ret;
@@ -77,7 +78,7 @@ SvrApp::init(const char *cfg_path)
     CommLog::init_log(conf_.log_path_, conf_.log_level_);
 
     // 初始化
-    ret = CommRefactor::instance()->init(conf_.max_client_);
+    ret = CommEpoll::instance()->init(conf_.max_client_);
     if (ret != 0)
     {
         error_log("refactor init fail. ret=%d", ret);
@@ -91,14 +92,18 @@ SvrApp::init(const char *cfg_path)
         error_log("start service fail. ret=%d", ret);
         return ret;
     }
-    ret = CommRefactor::instance()->regist(&accept_handler_,
-        CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+
+	//初始化epoll
+	ret = CommEpoll::instance()->init_epoll(accept_handler_.get_handle());
+	
+   // ret = CommRefactor::instance()->regist(&accept_handler_,
+   //     CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+   ret = CommEpoll::instance()->regist(&accept_handler_, true);
     if (ret != 0)
     {
         error_log("net regist fail. ret=%d", ret);
         return ret;
     }
-
     // 精度要求不高，直接用简单的alarm定时器
     //signal(SIGALRM, on_timer_handle);
     //alarm(1);

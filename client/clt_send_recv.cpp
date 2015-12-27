@@ -81,7 +81,7 @@ read_pkg(CommSocket &client_socket, svr_proto::SvrPkg &pkg)
     do
     {
         bool wait_read = true;
-        ret = client_socket.wait(&wait_read, NULL, 10000);
+        ret = client_socket.wait(&wait_read, NULL, 100000000);
         if (ret == CommSocket::ERR_SOCKET_TIMEOUT)
         {
             // ³¬Ê±

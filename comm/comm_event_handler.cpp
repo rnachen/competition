@@ -31,6 +31,12 @@ int CommEventHandler::handle_input()
     return 0;
 }
 
+int CommEventHandler::handle_input_ex()
+{
+    return 0;
+}
+
+
 //
 int CommEventHandler::handle_output()
 {

@@ -12,6 +12,7 @@
 #include <map>
 #include "comm_log.h"
 #include "comm_refactor.h"
+#include "comm_epoll.h"
 #include "svr_tcp_client_handler.h"
 
 SvrAcceptHandler::SvrAcceptHandler()
@@ -58,6 +59,7 @@ SvrAcceptHandler::handle_input()
 
     ret = CommRefactor::instance()->regist(client_handler,
         CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+
     if (ret != 0)
     {
         error_log("new client add fail. ");
@@ -71,6 +73,35 @@ SvrAcceptHandler::handle_input()
 
     return 0;
 }
+
+int
+SvrAcceptHandler::handle_input_ex()
+{
+    CommSocket client_socket;
+    int ret = socket_.accept(&client_socket);
+    if (ret != 0)
+    {
+        error_log("accept fail. ret=%d", ret);
+        return -1;
+    }
+
+    SvrTcpClientHandler *client_handler = new SvrTcpClientHandler(client_socket.get_fd());
+
+    ret = CommEpoll::instance()->regist(client_handler,true);
+    if (ret != 0)
+    {
+        error_log("new client add fail. ");
+        return 0;
+    }
+
+    debug_log("accept new client: fd= %d", client_socket.get_fd());
+
+    // 要设置到-1，否则client_socket析构会关闭fd
+    client_socket.set_fd(-1);
+
+    return 0;
+}
+
 
 int
 SvrAcceptHandler::handle_exception()

@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/resource.h>
 
 #include "comm_socket.h"
 #include "comm_log.h"
@@ -37,6 +38,10 @@ CommSocket::CommSocket():
     }
 
 #endif
+
+	struct rlimit rl;
+	rl.rlim_cur = 1024;
+	rl.rlim_max = 100000;
 
 }
 
