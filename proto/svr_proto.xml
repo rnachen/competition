@@ -12,8 +12,8 @@
 	
 	<!-- 坐标数据 -->
     <struct name="Axis" version="1">
-        <entry name="x_axis_" type="uint32" desc="横坐标"/>
-		<entry name="y_axis_" type="uint32" desc="纵坐标"/>
+        <entry name="x_axis_" type="uint16" desc="横坐标"/>
+		<entry name="y_axis_" type="uint16" desc="纵坐标"/>
     </struct>
 	
 	<!-- 视野数据 -->
