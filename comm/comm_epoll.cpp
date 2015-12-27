@@ -23,7 +23,7 @@ CommEpoll::CommEpoll():
 CommEpoll::~CommEpoll()
 {
     // 清理
-    std::map<unsigned int, CommEventHandler *>::iterator iter = event_handler_map_.begin();
+    std::tr1::unordered_map<unsigned int, CommEventHandler *>::iterator iter = event_handler_map_.begin();
 
     for (; iter != event_handler_map_.end(); ++iter)
     {
@@ -36,31 +36,28 @@ CommEpoll::~CommEpoll()
 
 int CommEpoll::proc( unsigned int wait_mil_second /*= 10*/ )
 {
-	nfds=epoll_wait(epoll_fd,events,MAX_EVENTS,-1);  
-    if(nfds==-1)  
-    {  
-        perror("start epoll_wait failed");  
-        exit(EXIT_FAILURE);  
-    }  
+    nfds = epoll_wait( epoll_fd, events, MAX_EVENTS, -1 );
     
-    for(int i=0;i<nfds;i++)  
-    {  
-    	if(events[i].events&EPOLLOUT)//有数据待发送，写socket
-    	{
-			int fd = events[i].data.fd;
-			on_send(fd);
-		}
-		else if(events[i].events&EPOLLRDHUP)
-		{
-			int fd = events[i].data.fd;
-			on_error(fd);
-		}
-		else
-		{
-			int fd = events[i].data.fd;
-			on_recv(fd);
-		}
-     }  
+    if( nfds == -1 ) {
+        perror( "start epoll_wait failed" );
+        exit( EXIT_FAILURE );
+    }
+    
+    for( int i = 0; i < nfds; i++ ) {
+        if( events[i].events & EPOLLOUT ) { //有数据待发送，写socket
+            int fd = events[i].data.fd;
+            on_send( fd );
+        }
+        else if( events[i].events & EPOLLRDHUP ) {
+            int fd = events[i].data.fd;
+            on_error( fd );
+        }
+        else {
+            int fd = events[i].data.fd;
+            on_recv( fd );
+        }
+    }
+    
     return 0;
 }
 
@@ -105,23 +102,24 @@ int CommEpoll::on_send(int fd)
 int CommEpoll::regist(CommEventHandler *handler, bool is_need_mod)
 { 
     // 添加事件
-    if (event_handler_map_.size() >= max_size_)
-    {
-        error_log("epoll size is full. curr size=%u", event_handler_map_.size());
+    if( event_handler_map_.size() >= max_size_ ) {
+        error_log( "epoll size is full. curr size=%u", event_handler_map_.size() );
         return -1;
     }
-
-    CommEventHandler *old_handler = get_event_handler(handler->get_handle());
-    if (old_handler != NULL && old_handler != handler)
-    {
-        error_log("handler exist. check your code");
+    
+    CommEventHandler *old_handler = get_event_handler( handler->get_handle() );
+    
+    if( old_handler != NULL && old_handler != handler ) {
+        error_log( "handler exist. check your code" );
         return -2;
     }
-
-    event_handler_map_.insert(std::make_pair(handler->get_handle(), handler));
-
-	if(is_need_mod)
-    	mod_event(handler->get_handle(), EPOLLIN|EPOLLET);
+    
+    event_handler_map_.insert( std::make_pair( handler->get_handle(), handler ) );
+    
+    if( is_need_mod ) {
+        mod_event( handler->get_handle(), EPOLLIN | EPOLLET );
+    }
+    
 
     return 0;
 }
@@ -157,7 +155,8 @@ int CommEpoll::on_error(int fd)
 
 CommEventHandler *CommEpoll::get_event_handler(int fd) const
 {
-    std::map<unsigned int, CommEventHandler *>::const_iterator iter = event_handler_map_.find(fd);
+    //std::map<unsigned int, CommEventHandler *>::const_iterator iter = event_handler_map_.find(fd);
+    std::tr1::unordered_map<unsigned int, CommEventHandler *>::const_iterator iter = event_handler_map_.find(fd);
 
     if (iter != event_handler_map_.end())
     {
@@ -176,24 +175,28 @@ CommEpoll *CommEpoll::instance()
 void
 CommEpoll::mod_event(int fd, int e)
 {  	
-	ev.data.fd = fd;
-    ev.events=EPOLLIN|EPOLLET;
-	int ret = epoll_ctl(epoll_fd,EPOLL_CTL_ADD,fd,&ev);
-    if(ret == -1)
-    {
-	 	error_log("epoll mod event fail. ret=%d", ret);
+    ev.data.fd = fd;
+    ev.events = EPOLLIN | EPOLLET;
+    int ret = epoll_ctl( epoll_fd, EPOLL_CTL_ADD, fd, &ev );
+    
+    if( ret == -1 ) {
+        error_log( "epoll mod event fail. ret=%d", ret );
     }
+    
 }
 
 int CommEpoll::init_epoll(int fd)
 {
-    epoll_fd=epoll_create(MAX_EVENTS); 
-    if(epoll_fd==-1)  
-    {  
-        error_log("epoll_create failed", epoll_fd);  
-        exit(EXIT_FAILURE); 
-    } 
-	return 0;
+    // Since Linux 2.6.8, the size argument is unused.  (The kernel dynamically
+    // sizes the required data structures without needing this initial hint.)
+    epoll_fd = epoll_create( MAX_EVENTS );
+    
+    if( epoll_fd == -1 ) {
+        error_log( "epoll_create failed", epoll_fd );
+        exit( EXIT_FAILURE );
+    }
+    
+    return 0;
 }
 
 int
@@ -207,8 +210,7 @@ CommEpoll::init(unsigned int max_event)
 int
 CommEpoll::remove(CommEventHandler *handler)
 {
-	std::map<unsigned int, CommEventHandler *>::iterator iter
-       = event_handler_map_.find((int)handler->get_handle());
+    std::tr1::unordered_map<unsigned int, CommEventHandler *>::iterator iter = event_handler_map_.find((int)handler->get_handle());
     if (iter != event_handler_map_.end())
     {
         event_handler_map_.erase(iter);

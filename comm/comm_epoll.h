@@ -19,7 +19,7 @@
 #include <string.h>  
 #include <sys/epoll.h>
 
-#include <map>
+#include <tr1/unordered_map>
 
 #define BUFFER_SIZE 40  
 #define MAX_EVENTS 1000000
@@ -36,7 +36,7 @@ public:
 
     int proc(unsigned int wait_mil_second = 10);
 
-	int init_epoll(int fd);
+    int init_epoll(int fd);
 
     static CommEpoll *instance();
 
@@ -54,11 +54,12 @@ private:
     void mod_event(int fd, int e);
 
 private:
-	int epoll_fd;//
-	int nfds;// epoll监听事件发生的个数
-	struct epoll_event ev;// epoll事件结构体  
-	struct epoll_event events[MAX_EVENTS];// 事件监听队列  
-    std::map<unsigned int, CommEventHandler *> event_handler_map_;
+    int epoll_fd;//
+    int nfds;// epoll监听事件发生的个数
+    struct epoll_event ev;// epoll事件结构体
+    struct epoll_event events[MAX_EVENTS];// 事件监听队列
+    //std::map<unsigned int, CommEventHandler *> event_handler_map_;
+    std::tr1::unordered_map<unsigned int, CommEventHandler *> event_handler_map_;
 
     unsigned int max_fd_;
     // 允许最多的连接数

@@ -180,21 +180,20 @@ int
 SvrTcpClientHandler::handle_recv_pkg(const svr_proto::SvrPkg &pkg)
 {
     int ret = 0;
-    switch(pkg.head_.cmd_)
-    {
-    case SVR_CMD_CS_PLAYER_LOGIN:
-        {
-			ret = handle_player_login(pkg.body_.player_login_);
-            break;
-        }
-    case SVR_CMD_CS_PLAYER_GET_AXIS:
-        {
-            ret = handle_player_get_axis(pkg.body_.player_get_axis_);
-            break;
-        }
-
+    
+    switch( pkg.head_.cmd_ ) {
+    case SVR_CMD_CS_PLAYER_LOGIN: {
+        ret = handle_player_login( pkg.body_.player_login_ );
+        break;
+    }
+    
+    case SVR_CMD_CS_PLAYER_GET_AXIS: {
+        ret = handle_player_get_axis( pkg.body_.player_get_axis_ );
+        break;
+    }
+    
     default:
-        error_log("unknow cmd:%d", pkg.head_.cmd_);
+        error_log( "unknow cmd:%d", pkg.head_.cmd_ );
         ret = -1;
         break;
     }
@@ -210,12 +209,12 @@ SvrTcpClientHandler::handle_recv_pkg(const svr_proto::SvrPkg &pkg)
 int
 SvrTcpClientHandler::handle_player_login(const svr_proto::PlayerLogin &pkg_body)
 {
-	GameAxis::instance()->born(pkg_body.uin_);
-
-    GameAxis::instance()->get_sight_data(pkg_body.uin_, send_pkg_.body_.player_sight_);
+    GameAxis::instance()->born( pkg_body.uin_ );
+    GameAxis::instance()->get_sight_data( pkg_body.uin_,
+                                          send_pkg_.body_.player_sight_ );
     send_pkg_.head_.cmd_ = SVR_CMD_SC_PLAYER_SIGHT;
-	send_pkg_.body_.player_sight_.uin_ = pkg_body.uin_;
-    send_pkg_.body_.player_sight_.time_ = time(NULL);
+    send_pkg_.body_.player_sight_.uin_ = pkg_body.uin_;
+    send_pkg_.body_.player_sight_.time_ = time( NULL );
     
     return send_pkg(send_pkg_);
 }
@@ -223,10 +222,11 @@ SvrTcpClientHandler::handle_player_login(const svr_proto::PlayerLogin &pkg_body)
 int
 SvrTcpClientHandler::handle_player_get_axis(const svr_proto::PlayerGetAxis &pkg_body)
 {
-    GameAxis::instance()->move(pkg_body.time_);
-    GameAxis::instance()->get_sight_data(pkg_body.uin_, send_pkg_.body_.player_sight_);
+    GameAxis::instance()->move( pkg_body.time_ );
+    GameAxis::instance()->get_sight_data( pkg_body.uin_,
+                                          send_pkg_.body_.player_sight_ );
     send_pkg_.head_.cmd_ = SVR_CMD_SC_PLAYER_SIGHT;
-	send_pkg_.body_.player_sight_.uin_ = pkg_body.uin_;
+    send_pkg_.body_.player_sight_.uin_ = pkg_body.uin_;
     send_pkg_.body_.player_sight_.time_ = pkg_body.time_;
     
     return send_pkg(send_pkg_);
@@ -244,28 +244,27 @@ SvrTcpClientHandler::send_pkg(const svr_proto::SvrPkg &send_pkg)
         return -1;
     }
 
-    ret = (int)socket_.send((unsigned char *)send_buffer_, use_size);
-    if (ret == CommSocket::ERR_SOCKET_CONTINUE)
-    {
+    ret = ( int )socket_.send( ( unsigned char * )send_buffer_, use_size );
+    
+    if( ret == CommSocket::ERR_SOCKET_CONTINUE ) {
         // 未发送完，需继续发送，增加写事件
-       // CommRefactor::instance()->regist(this,
-       //     CommEventHandler::READ_MASK|CommEventHandler::WRITE_MASK|CommEventHandler::EXCEPT_MASK);
-		  CommEpoll::instance()->regist(this, false);
-		return ret;
-    }
-    else if (ret == CommSocket::ERR_SOCKET_FINISH)
-    {
-        // 发送完了，关闭写事件
-        //CommRefactor::instance()->regist(this,
-         //   CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
-		CommEpoll::instance()->regist(this, false);
-    }
-    else
-    {
-        // 写出错
-        error_log("send error. ret=%d", ret);
+        // CommRefactor::instance()->regist(this,
+        //     CommEventHandler::READ_MASK|CommEventHandler::WRITE_MASK|CommEventHandler::EXCEPT_MASK);
+        CommEpoll::instance()->regist( this, false );
         return ret;
     }
+    else if( ret == CommSocket::ERR_SOCKET_FINISH ) {
+        // 发送完了，关闭写事件
+        //CommRefactor::instance()->regist(this,
+        //   CommEventHandler::READ_MASK|CommEventHandler::EXCEPT_MASK);
+        CommEpoll::instance()->regist( this, false );
+    }
+    else {
+        // 写出错
+        error_log( "send error. ret=%d", ret );
+        return ret;
+    }
+    
 
     return ret;
 }
